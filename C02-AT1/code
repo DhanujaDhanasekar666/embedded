@@ -1,0 +1,56 @@
+#include <iostream>
+#include <thread>
+#include <chrono>
+
+using namespace std;
+
+bool armReady = false;
+
+// Function to simulate robotic arm movement
+void moveArm()
+{
+    cout << "Industrial Robotic Arm Simulation Started\n\n";
+
+    cout << "Arm Moving..." << endl;
+
+    this_thread::sleep_for(chrono::seconds(2));
+
+    cout << "Arm Position Reached" << endl;
+
+    armReady = true;
+}
+
+// Function to simulate sensor monitoring
+void monitorSensor()
+{
+    this_thread::sleep_for(chrono::seconds(1));
+
+    cout << "Sensor Monitoring Active" << endl;
+}
+
+// Function to simulate gripper synchronization
+void gripObject()
+{
+    while(!armReady)
+    {
+        this_thread::sleep_for(chrono::milliseconds(100));
+    }
+
+    cout << "Gripper Closed" << endl;
+}
+
+int main()
+{
+    thread t1(moveArm);
+    thread t2(monitorSensor);
+    thread t3(gripObject);
+
+    t1.join();
+    t2.join();
+    t3.join();
+
+    cout << "\nTask Completed Successfully" << endl;
+    cout << "Simulation Finished" << endl;
+
+    return 0;
+}

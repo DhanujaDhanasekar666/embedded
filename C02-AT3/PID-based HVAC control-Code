@@ -1,0 +1,79 @@
+const int tempPin = A0;      
+const int heater = 8;
+const int cooler = 9;
+const int fan = 10;
+
+float setPoint = 25.0;       
+float Kp = 2.0;
+float Ki = 0.5;
+float Kd = 1.0;
+
+float error = 0;
+float previousError = 0;
+float integral = 0;
+float derivative = 0;
+float pidOutput = 0;
+
+void setup()
+{
+  pinMode(heater, OUTPUT);
+  pinMode(cooler, OUTPUT);
+  pinMode(fan, OUTPUT);
+
+  Serial.begin(9600);
+}
+void loop()
+{
+  int adcValue = analogRead(tempPin);
+  float temperature = (adcValue * 5.0 * 100.0) / 1023.0;
+  error = setPoint - temperature;
+  integral = integral + error;
+  derivative = error - previousError;
+  pidOutput = (Kp * error) + (Ki * integral) + (Kd * derivative);
+  previousError = error;
+  if (temperature > setPoint)
+  {
+    digitalWrite(heater, LOW);
+    digitalWrite(cooler, HIGH);
+    digitalWrite(fan, HIGH);
+  }
+  else if (temperature < setPoint)
+  {
+    digitalWrite(heater, HIGH);
+    digitalWrite(cooler, LOW);
+    digitalWrite(fan, HIGH);
+  }
+  else
+  {
+    digitalWrite(heater, LOW);
+    digitalWrite(cooler, LOW);
+    digitalWrite(fan, LOW);
+  }
+  Serial.println("PID-Based HVAC Control System");
+  Serial.print("Setpoint: ");
+  Serial.print(setPoint);
+  Serial.println(" C");
+
+  Serial.print("Measured Temp: ");
+  Serial.print(temperature);
+  Serial.println(" C");
+
+  Serial.print("Error: ");
+  Serial.println(error);
+
+  Serial.print("PID Output: ");
+  Serial.println(pidOutput);
+
+  if (temperature > setPoint)
+    Serial.println("Heater: OFF | Cooler: ON | Fan: ON");
+
+  else if (temperature < setPoint)
+    Serial.println("Heater: ON | Cooler: OFF | Fan: ON");
+
+  else
+    Serial.println("Heater: OFF | Cooler: OFF | Fan: OFF");
+
+  Serial.println("----------------------------");
+
+  delay(1000);
+}

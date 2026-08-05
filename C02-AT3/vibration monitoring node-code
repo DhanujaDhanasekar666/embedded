@@ -1,0 +1,39 @@
+#include <reg51.h>
+#define THRESHOLD 100
+unsigned char vibration = 120;   // Simulated sensor value
+void UART_Init()
+{
+    TMOD = 0x20;      // Timer1 Mode2
+    TH1 = 0xFD;       // 9600 baud rate
+    SCON = 0x50;      // UART Mode1
+    TR1 = 1;          // Start Timer1
+}
+void UART_SendChar(unsigned char ch)
+{
+    SBUF = ch;
+    while(TI == 0);
+    TI = 0;
+}
+void UART_SendString(char *str)
+{
+    while(*str)
+    {
+        UART_SendChar(*str++);
+    }
+}
+void main()
+{
+    UART_Init();
+    while(1)
+    {
+        if(vibration > THRESHOLD)
+        {
+            UART_SendString("High Vibration Detected\r\n");
+        }
+        else
+        {
+            UART_SendString("Normal Vibration\r\n");
+        }
+        while(1);   // Stop after one transmission
+    }
+}
